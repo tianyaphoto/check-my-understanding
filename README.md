@@ -37,6 +37,7 @@ Say what you want tested, in any language:
 
 - `check my understanding of Raft`
 - `test me on this document: docs/design.md`
+- `check my understanding of this codebase: ~/code/payments` (large codebases, see below)
 - `retest me on Raft` (after you have studied the gaps)
 
 On the first run the skill asks where to keep its records and saves the answer to `~/.config/check-my-understanding/config.json`:
@@ -64,6 +65,12 @@ A baseline is 20 questions and takes about 30 minutes. "I don't know" is a valid
 | 3 | Knows why it is designed that way |
 | 4 | Can apply it and knows its limits (default target) |
 | 5 | Can trade it off against alternatives |
+
+## Large codebases
+
+When the material is a large codebase you are reading or about to work in (roughly 50+ source files or 10k+ lines), the skill first builds a map of it with the [Understand Anything](https://github.com/Egonex-AI/Understand-Anything) plugin: files, functions, dependencies, architectural layers, and a guided tour. It picks the concepts worth testing from that map (end-to-end flows, layer boundaries, core abstractions, data ownership), checks every fact against the code itself, and points feedback at `path:line`. It reuses an existing graph in `.ua/` and offers an incremental refresh if the graph is behind `HEAD`.
+
+The plugin is optional. If it is not installed, the skill gives you the install commands and can continue without the map on a narrower scope. Small repositories, single files, and non-code material such as books and docs never use it.
 
 ## Challenge round
 

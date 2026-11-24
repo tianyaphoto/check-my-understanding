@@ -1,6 +1,6 @@
 ---
 name: check-my-understanding
-description: "Measure how well the user understands a topic or a piece of material with an adaptive quiz and immediate feedback, then report a 0-5 level per concept, a mastery score, and a diagnosis of the root misconceptions with reading pointers. Supports a baseline -> study -> retest loop against a frozen rubric until every core concept reaches the target level. Use when the user wants to check, test, assess, or find the gaps in their understanding: 'check my understanding of X', 'test me on X', 'find my blind spots', 'retest me', '测测我', '摸底', '复测', '看看我对 X 理解到什么程度'. Also runs a challenge round that makes the user test the assumptions their answers exposed against cases where they fail: 'challenge my assumptions', '挑战我', '挑战环节'. Not for teaching a topic from scratch or one-off factual questions."
+description: "Measure how well the user understands a topic or a piece of material with an adaptive quiz and immediate feedback, then report a 0-5 level per concept, a mastery score, and a diagnosis of the root misconceptions with reading pointers. Supports a baseline -> study -> retest loop against a frozen rubric until every core concept reaches the target level. Use when the user wants to check, test, assess, or find the gaps in their understanding: 'check my understanding of X', 'test me on X', 'test me on this codebase', 'find my blind spots', 'retest me', '测测我', '摸底', '复测', '看看我对 X 理解到什么程度'. Also runs a challenge round that makes the user test the assumptions their answers exposed against cases where they fail: 'challenge my assumptions', '挑战我', '挑战环节'. Not for teaching a topic from scratch or one-off factual questions."
 ---
 
 # Check My Understanding
@@ -49,6 +49,7 @@ Records for a topic live in `<records_dir>/<topic-slug>/checks/`. The `checks/` 
 
 ### Step 1: Gather the sources (baseline only)
 
+- **User gave a large codebase** (a repository or directory they are reading or about to work in, too big to read in full: roughly more than 50 source files or 10k lines): read [references/codebase-graph.md](references/codebase-graph.md) and follow it. It first builds a map of the code with the Understand Anything plugin, then builds the tree from that map and verifies every fact in the code. Only this case uses it. A small repo is read directly, and long non-code material (a book, docs) takes the bullet below.
 - **User gave material** (file, link, notes, a chapter): read all of it. It defines the scope and is the answer key. You may add an outside source only to fill an obvious hole, and must label it as outside.
 - **User gave only a topic name**: search the web and choose **3-5 authoritative sources**. Prefer primary sources (official docs, the original paper, the spec, a widely used textbook, a recognized expert's long-form explanation) over SEO summaries. Read them before building anything. These sources become the user's reading list.
 - **No web access available**: build from your own knowledge and say plainly in `sources.md` and in the report that there is no external ground truth.

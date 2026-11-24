@@ -37,6 +37,7 @@ git -C ~/.claude/skills/check-my-understanding pull
 
 - `测测我对 Raft 的理解`
 - `用这份文档给我摸底：docs/design.md`
+- `测测我对这个代码库的理解：~/code/payments`（大型代码库，见下文）
 - `复测 Raft`（学完薄弱点之后）
 
 第一次运行时技能会问记录放哪里，并把答案写进 `~/.config/check-my-understanding/config.json`：
@@ -64,6 +65,12 @@ git -C ~/.claude/skills/check-my-understanding pull
 | 3 | 知道为什么这样设计 |
 | 4 | 会用，知道边界（默认目标） |
 | 5 | 能和其他方案做取舍 |
+
+## 大型代码库
+
+材料是你正在读或马上要接手的大型代码库（大约 50 个源文件或 1 万行以上）时，技能先用 [Understand Anything](https://github.com/Egonex-AI/Understand-Anything) 插件给代码画一张图谱：文件、函数、依赖关系、架构分层和导览路线。再从图谱里挑出值得考的概念（端到端流程、分层边界、核心抽象、数据归属），每条事实都回到代码里核对，讲评直接指到 `路径:行号`。已经有 `.ua/` 图谱就直接用；图谱落后于 `HEAD` 时，会问你要不要增量刷新。
+
+这个插件不是必需的。没装的话，技能会给出安装命令，也可以缩小范围、不用图谱继续测。小仓库、单个文件，以及书、文档这类非代码材料，都不走这条路。
 
 ## 挑战环节
 
