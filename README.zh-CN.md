@@ -14,9 +14,22 @@
 git clone https://github.com/tianyaphoto/check-my-understanding ~/.claude/skills/check-my-understanding
 ```
 
-只想在某个项目里用，就克隆到 `<项目>/.claude/skills/check-my-understanding`。更新时在该目录执行 `git pull`。
+只想在某个项目里用，就克隆到 `<项目>/.claude/skills/check-my-understanding`。
 
 新开一个 Claude Code 会话即可使用，没有其他依赖。
+
+## 更新
+
+在克隆的目录里拉取最新版本，然后新开一个 Claude Code 会话。已经开着的会话用的还是它加载时的版本。
+
+```bash
+git -C ~/.claude/skills/check-my-understanding pull
+```
+
+- **测验记录不受影响**：记录存在你设置的 `records_dir` 里，不在技能目录下，更新不会动它。旧版本写的知识树和答题记录可以继续用，复测和挑战环节会原样读取。
+- **查看当前版本**：`git -C ~/.claude/skills/check-my-understanding log -1 --format='%h %ad %s' --date=short`
+- **本地改过技能、拉取被拒绝**：想保留改动，先 `git stash`，拉取后再 `git stash pop`；不想保留，拉取前执行 `git checkout .`。
+- **当初是复制文件而不是克隆的**：删掉该目录，用上面的克隆命令重新安装。
 
 ## 使用
 

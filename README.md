@@ -14,9 +14,22 @@ Clone the repository into your skills directory:
 git clone https://github.com/tianyaphoto/check-my-understanding ~/.claude/skills/check-my-understanding
 ```
 
-To install it for one project only, clone it into `<project>/.claude/skills/check-my-understanding` instead. Update with `git pull` in that directory.
+To install it for one project only, clone it into `<project>/.claude/skills/check-my-understanding` instead.
 
 Start a new Claude Code session and the skill is available. No dependencies.
+
+## Update
+
+Pull the latest version in the directory you cloned into, then start a new Claude Code session. A session that is already open keeps the version it loaded.
+
+```bash
+git -C ~/.claude/skills/check-my-understanding pull
+```
+
+- **Your records are safe.** Test records live in your `records_dir`, outside the skill directory, and an update never touches them. Trees and logs written by an older version keep working: a retest or a challenge round uses them as they are.
+- **Which version do I have?** `git -C ~/.claude/skills/check-my-understanding log -1 --format='%h %ad %s' --date=short`
+- **You edited the skill locally and the pull is refused.** Keep your edits with `git stash`, pull, then `git stash pop`. To drop them instead, run `git checkout .` before pulling.
+- **You copied the files instead of cloning.** Delete the directory and install again with the clone command above.
 
 ## Use
 
