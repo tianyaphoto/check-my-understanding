@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Drive one quiz: an examiner session (real skill) talks to a learner session (planted knowledge).
-usage: run_quiz.py <work_dir> <notes_file> <baseline|retest> <out_dir>"""
+usage: run_quiz.py <work_dir> <notes_file> <baseline|retest|challenge> <out_dir>"""
 import json, subprocess, sys, uuid, glob, os, time, tempfile, shutil
 work, notes, kind, out = sys.argv[1:5]
 FIX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 os.makedirs(work, exist_ok=True); os.makedirs(out, exist_ok=True)
 if not os.path.exists(f"{work}/material.md"): shutil.copy(f"{FIX}/material.md", work)
-learner_sys = open(f"{FIX}/learner_common.md").read() + open(notes).read()
+learner_sys = open(f"{FIX}/" + ("learner_challenge.md" if kind == "challenge" else "learner_common.md")).read() + open(notes).read()
 learner_cwd = tempfile.mkdtemp(prefix="cmu-learner-")
 ex_id, le_id = str(uuid.uuid4()), str(uuid.uuid4())
 EX_MODEL = os.environ.get("EX_MODEL")
@@ -37,9 +37,13 @@ def learner(msg, first):
     a += ["--session-id", le_id] if first else ["--resume", le_id]
     return call(a, msg, learner_cwd)
 
-def reports(): return set(glob.glob(f"{work}/records/**/reports/*.md", recursive=True))
+def reports():
+    if kind == "challenge":   # done when a challenge file is marked complete
+        return {x for x in glob.glob(f"{work}/records/**/challenges/*.md", recursive=True) if "status: complete" in open(x).read()}
+    return set(glob.glob(f"{work}/records/**/reports/*.md", recursive=True))
 
 first_msg = {"baseline": "测测我对这份材料的理解：material.md（就在当前目录）。测试记录放在当前目录的 records/ 下面。",
+             "challenge": "挑战一下我在潮汐锁测验里暴露出来的假设。测试记录在当前目录的 records/ 下面，材料是当前目录的 material.md。",
              "retest": "材料我重新学过了，复测一下潮汐锁。测试记录在当前目录的 records/ 下面，材料还是当前目录的 material.md。"}[kind]
 before = reports(); cost = 0.0; t0 = time.time()
 tr = open(f"{out}/transcript.md", "w")

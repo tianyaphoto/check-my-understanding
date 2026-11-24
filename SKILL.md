@@ -1,6 +1,6 @@
 ---
 name: check-my-understanding
-description: "Measure how well the user understands a topic or a piece of material with an adaptive quiz and immediate feedback, then report a 0-5 level per concept, a mastery score, and a diagnosis of the root misconceptions with reading pointers. Supports a baseline -> study -> retest loop against a frozen rubric until every core concept reaches the target level. Use when the user wants to check, test, assess, or find the gaps in their understanding: 'check my understanding of X', 'test me on X', 'find my blind spots', 'retest me', '测测我', '摸底', '复测', '看看我对 X 理解到什么程度'. Not for teaching a topic from scratch or one-off factual questions."
+description: "Measure how well the user understands a topic or a piece of material with an adaptive quiz and immediate feedback, then report a 0-5 level per concept, a mastery score, and a diagnosis of the root misconceptions with reading pointers. Supports a baseline -> study -> retest loop against a frozen rubric until every core concept reaches the target level. Use when the user wants to check, test, assess, or find the gaps in their understanding: 'check my understanding of X', 'test me on X', 'find my blind spots', 'retest me', '测测我', '摸底', '复测', '看看我对 X 理解到什么程度'. Also runs a challenge round that makes the user test the assumptions their answers exposed against cases where they fail: 'challenge my assumptions', '挑战我', '挑战环节'. Not for teaching a topic from scratch or one-off factual questions."
 ---
 
 # Check My Understanding
@@ -8,6 +8,8 @@ description: "Measure how well the user understands a topic or a piece of materi
 This skill is a **measuring instrument with immediate feedback, not a lecture**. Its job is to find exactly where the user's understanding breaks, correct each answer on the spot, say bluntly what the pattern of mistakes means, and drive a loop:
 
 **baseline test -> user studies the gaps -> retest -> ... -> mastered**
+
+After any report the user can also take a **challenge round** (Step 7): the measurement stops and the user is made to test their own assumptions against cases where they fail.
 
 Two properties decide whether the instrument is any good, and every rule below serves one of them:
 
@@ -41,6 +43,7 @@ Records for a topic live in `<records_dir>/<topic-slug>/checks/`. The `checks/` 
 
 - Derive a short kebab-case slug for the topic. List `<records_dir>` and fuzzy-match existing topic folders (e.g. `raft` vs `raft-consensus`). On a close match, ask whether it is the same topic.
 - An unfinished session exists (`status: in-progress` or `paused`): offer to resume it.
+- The user asks to be challenged ("challenge my assumptions", "挑战我") and a finished session exists: go to Step 7.
 - A finished session exists: this is a **retest** (go to Step 6).
 - Nothing exists: this is a **baseline** (Steps 1-5).
 
@@ -102,7 +105,7 @@ A pass that only repeats what a feedback revealed does not count (hard rule 4). 
 - **Source pointer** (`S1 §5`) on every feedback, correct answers included, so the user knows where this lives.
 - Keep it under about 6 lines, and explain only the question just asked. Feedback that wanders into neighbouring points gives away later questions.
 
-**After each answer, append to the session log** (format in the storage reference): the question, the targeted node and level, the user's verbatim answer, the verdict, the misconception it reveals if any, a `Revealed:` line listing the facts your feedback just told the user, and the node's current level with its pinned state.
+**After each answer, append to the session log** (format in the storage reference): the question, the targeted node and level, the user's verbatim answer, the verdict, the misconception it reveals if any, an `Assumptions:` line with any belief the user's reasoning relied on (in their words, for right answers too), a `Revealed:` line listing the facts your feedback just told the user, and the node's current level with its pinned state.
 
 **The user pushes back on feedback or a grade:** re-check against the source and the node's descriptors right away. If they're right, say so plainly, fix the verdict and the level, recompute, and log the correction. If not, show exactly where the source says otherwise, in one or two sentences. A dispute doesn't count as a question.
 
@@ -132,7 +135,7 @@ For each root problem, give:
 
 Be specific and direct. No hedging, no praise sandwich. Strengths get one line.
 
-Then write and show the report using [references/report-formats.md](references/report-formats.md), save it, add the row to `history.md`, and set the session `status: complete`. Revealing the answers is safe because a retest never reuses questions. Offer to explain any point live, but don't lecture unprompted.
+Then write and show the report using [references/report-formats.md](references/report-formats.md), save it, add the row to `history.md`, and set the session `status: complete`. Revealing the answers is safe because a retest never reuses questions. Offer to explain any point live, but don't lecture unprompted. If the session exposed at least one wrong model or unstated assumption, also offer the challenge round in one line ("Want me to challenge the assumptions behind these answers? About 15 minutes.").
 
 Done when: the report is shown and saved, `history.md` has the new row, and every level in the report equals the level in the session log.
 
@@ -142,8 +145,19 @@ Done when: the report is shown and saved, `history.md` has the new row, and ever
 - **Budget**: 2 questions for each node below its target, plus 1 spot-check for each node at its target, plus 1 for each previous root problem. Use the configured default if that is larger; never exceed 1.5x the default. Tell the user the number before starting, and that it ends early if everything is settled sooner. A retest must be able to bring every node to its target in one session.
 - **Previous root problems and misconceptions come first.** For every node that a previous root problem or a logged misconception touched, the target-level question is a fresh scenario where that false belief picks a specific wrong option. A root problem that touched two nodes is checked on both, and counts as resolved only if both come out right.
 - **Below-target nodes**: the user has studied, so open each one **at its target level** with a "choose and say why" scenario. Pass with a correct reason: the node is at target, pinned, one question spent. Fail: ask one open "why is it built that way?" question (L3). Pass: pinned at 3. Fail: the level stays where the previous session left it, unless the answers show it is lower.
+- **Challenged assumptions**: every assumption a challenge round closed as `revised`, `revised with help`, `bounded` or `unresolved` is treated like a previous root problem: it gets a fresh scenario where the old belief picks a specific wrong option, and the report says whether the change held.
 - **Spot-checks**: one question at the target level on each node that was already at target, to catch earlier lucky guesses and forgetting. A fail here drops the node to 3 and gets the same L3 follow-up.
 - **All questions are new, and new means a different situation.** The baseline's feedback already walked through its scenarios, so the same setup with other numbers measures memory of that feedback. For each retest question, pick a situation no earlier log used (another actor, another failure, another business case), and prefer an angle from the node's `Also:` points when the main one has been asked. Check every question against the earlier session logs before asking it.
 - The hard rules, feedback, and logging stay the same.
 - The report adds a **before -> after table** (up / same / down per node) and revisits each previous root problem explicitly: resolved / partly resolved / persists, with the question that shows it. Judge each one by its own premise as the previous report stated it: a different false belief that is still there is a separate, persisting problem, not a reason to call this one "partly resolved". A drop gets a flag: an earlier lucky guess, or forgetting?
 - **Mastered:** when every core node is at or above its target, open the report with a plain "Mastered." and offer a stretch target (target+1) or a spaced check-up in a few weeks. Otherwise give the next reading plan and suggest a retest after it.
+
+### Step 7: Challenge round (optional, after a report)
+
+Read [references/challenge.md](references/challenge.md) and follow it. In short:
+
+- Pick up to 3 assumptions from the logs and reports: the premises of the wrong-model root problems, the suspected beliefs, and the unstated assumptions behind the user's reasons. Gaps are not assumptions; if there are only gaps, say so and end.
+- For each one, in separate messages: the user **commits** to the belief in their own words, **predicts** a new situation with it, is **confronted** with what the source says happens (the fact only, not the explanation), **rebuilds** the model themselves, and names where the old belief would have misled them (**transfer**).
+- Never state the corrected model before the user has tried. If the user defends the assumption with an argument the source supports, concede.
+- Levels and `history.md` do not change. Log every step in `challenges/`, and close with the summary table and the one-line pattern across the assumptions.
+

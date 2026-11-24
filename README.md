@@ -41,6 +41,7 @@ A baseline is 20 questions and takes about 30 minutes. "I don't know" is a valid
 3. **The quiz.** One open "explain it" question per concept places it at level 0-3 without leaking anything. Concepts at level 3 get a scenario question at the target level. The remaining questions test the common misconceptions recorded in the tree.
 4. **The report.** Per-concept levels, a mastery score, and one to three root problems, each with the evidence, the consequence in real work, and what to read.
 5. **Retest.** New questions in new situations. Each earlier root problem is checked again and reported as resolved, partly resolved, or persisting.
+6. **Challenge round (optional).** After a report, say `challenge my assumptions`. See below.
 
 | Level | Meaning |
 |---|---|
@@ -51,11 +52,23 @@ A baseline is 20 questions and takes about 30 minutes. "I don't know" is a valid
 | 4 | Can apply it and knows its limits (default target) |
 | 5 | Can trade it off against alternatives |
 
+## Challenge round
+
+The quiz tells you which of your beliefs are wrong. The challenge round makes you find that out yourself, which is what changes how you think. It takes up to three assumptions that your answers exposed, including unstated ones behind correct answers, and runs each through five steps:
+
+1. **Commit.** It quotes what you said and asks whether you hold that belief.
+2. **Predict.** It gives a new situation and asks what happens.
+3. **Confront.** It tells you what actually happens, with the source, and nothing more.
+4. **Rebuild.** You work out what was wrong in your model and state the new one.
+5. **Transfer.** You name where the old belief would have misled you in your own work.
+
+It never states the corrected model before you have tried, and it concedes if you defend the assumption with an argument the source supports. The round ends with a table of old and new beliefs and one line on the habit of thought they share. It does not change your levels; the next retest checks whether each change held.
+
 ## Evaluation
 
 `evals/` holds the test harness used to develop the skill. A simulated learner with a planted knowledge profile, including two false beliefs, takes a baseline and a retest. An independent session extracts the facts from the transcript, and a script scores the run against the planted profile: measurement accuracy 30, diagnosis 20, retest loop 20, process 15, rubric and records 15.
 
-The current version scored 100/100 and the previous version 92.8, under the same conditions. Read these numbers with care: each version ran once, the 100 combines two learner chains that ran on consecutive revisions, and the fixture material is tidier than real documents. No human learners were involved.
+The quiz and retest scored 100/100, against 92.8 for the version before the redesign, under the same conditions. The challenge round is scored separately (picks the right assumptions 25, method 45, one question per message 15, records and summary 15) and scored 85, 100 and 95 in three runs across two revisions. Read these numbers with care: each configuration ran once, the 100 combines learner chains from different revisions, the fixture material is tidier than real documents, and the last wording changes to the challenge round were not rerun. No human learners were involved.
 
 To run it (needs the `claude` CLI; one learner chain uses roughly 20-55 USD of API-equivalent usage):
 
@@ -64,6 +77,8 @@ cd evals
 ./run_chain.sh mytag /path/to/skill p1   # learner with two wrong mental models
 ./run_chain.sh mytag /path/to/skill p3   # learner who memorized definitions
 python3 score.py runs/mytag
+
+./run_chain.sh mytag2 /path/to/skill p1 challenge   # baseline -> challenge round -> retest
 ```
 
 Do not kill a chain and rerun it under the same tag: leftover sessions write into the new run.
